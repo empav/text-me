@@ -1,53 +1,59 @@
 'use client';
+
 import { SSRProvider } from 'react-aria';
 import { useEffect, useState } from 'react';
 import axios from 'axios';
 import toast from 'react-hot-toast';
 import { signIn, useSession } from 'next-auth/react';
-import { SubmitHandler, FieldValues, useForm } from 'react-hook-form';
 
 import Button from '@/app/components/forms/Button';
 import TextField from '@/app/components/forms/TextField';
+import { useRouter } from 'next/navigation';
 
 type Variant = 'login' | 'register';
 
 const Authform = () => {
   const session = useSession();
+  const router = useRouter();
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [variant, setVariant] = useState<Variant>('login');
 
-  const {
-    register,
-    handleSubmit,
-    formState: { errors },
-  } = useForm<FieldValues>({
-    defaultValues: {
-      name: '',
-      email: '',
-      password: '',
-    },
+  const [formData, setFormData] = useState({
+    email: '',
+    name: '',
+    password: '',
   });
 
-  const onSubmit: SubmitHandler<FieldValues> = async (data) => {
-    console.log('viaaaaa');
+  const handleInput = (name: string) => (value: string) => {
+    setFormData((prev) => {
+      return {
+        ...prev,
+        [name]: value,
+      };
+    });
+  };
+
+  const handleSubmit = async (e: any) => {
+    e.preventDefault();
+
     try {
       setIsLoading(true);
 
-      if (variant === 'register') await axios.post('/api/register', data);
+      if (variant === 'register') await axios.post('/api/register', formData);
 
       const signInResponse = await signIn('credentials', {
-        ...data,
+        ...formData,
         redirect: false,
       });
 
       if (signInResponse?.error) {
-        toast.error('Invalid credentials!');
-        throw new Error('Invalid credentials!');
+        toast.error(
+          variant === 'login' ? 'Invalid credentials!' : 'Something went wrong!'
+        );
       }
 
       if (signInResponse?.ok) {
-        toast.success('Go to conversations');
-        //TODO: router.push('/conversations');
+        router.push('/users');
       }
     } catch (error) {
       throw new Error('Something went wrong!');
@@ -62,50 +68,68 @@ const Authform = () => {
 
   useEffect(() => {
     if (session.status === 'authenticated') {
-      toast.success('go to /conversations');
-      //TODO: router.push('/conversations');
+      router.push('/users');
     }
-  }, [session.status]);
+  }, [router, session.status]);
 
   return (
     <SSRProvider>
       <form
-        onSubmit={handleSubmit(onSubmit)}
-        className='w-[50vw] md:w-[30vw] max-w-sm flex flex-col items-center justify-center gap-2 mt-4'
+        onSubmit={handleSubmit}
+        className='w-[100%] md:w-[30%] max-w-sm flex flex-col items-center justify-center gap-2 mt-4'
       >
+        <h2
+          className='
+            mt-6 
+            text-2xl 
+            font-semibold 
+            dark:text-white
+          '
+        >
+          {variant === 'login'
+            ? 'Sign in with your account'
+            : 'Register a new account'}
+        </h2>
         <TextField
+          autoFocus
           isDisabled={isLoading}
-          register={register}
-          errors={errors}
           isRequired
           id='email'
           label='Email'
           type='email'
-          placeholder='Email'
+          value={formData.email}
+          onChange={handleInput('email')}
         />
         {variant === 'register' && (
           <TextField
             isDisabled={isLoading}
-            register={register}
-            errors={errors}
             isRequired
             id='name'
             label='Name'
             type='text'
-            placeholder='Full name'
+            onChange={handleInput('name')}
+            value={formData.name}
           />
         )}
         <TextField
           isDisabled={isLoading}
-          register={register}
-          errors={errors}
           isRequired
           id='password'
           label='Password'
           type='password'
-          placeholder='Password'
+          minLength={6}
+          onChange={handleInput('password')}
+          value={formData.password}
         />
-        <Button className='mt-4' type='submit'>
+        <Button
+          className='mt-4'
+          type='submit'
+          isDisabled={
+            variant === 'login'
+              ? !(formData.email && formData.password)
+              : !(formData.email && formData.name && formData.password)
+          }
+        >
           {variant === 'login' ? 'Sign in' : 'Register'}
         </Button>
       </form>

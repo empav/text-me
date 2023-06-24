@@ -5,6 +5,7 @@ const Auth = () => {
   return (
     <div
       className='
+        p-4
         flex 
         min-h-full 
         flex-col 
@@ -19,16 +20,6 @@ const Auth = () => {
         src='/images/logo.svg'
         alt='Logo Textme'
       />
-      <h2
-        className='
-            mt-6 
-            text-2xl 
-            font-semibold 
-            dark:text-white
-          '
-      >
-        Sign in to your account
-      </h2>
       <AuthForm />
     </div>
   );

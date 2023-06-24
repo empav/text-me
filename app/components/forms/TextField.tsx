@@ -3,15 +3,29 @@
 import type { AriaTextFieldProps } from 'react-aria';
 import { useTextField } from 'react-aria';
 import { useRef } from 'react';
-import { nanoid } from 'nanoid';
-import clsx from 'clsx';
-
-import { FieldErrors, FieldValues, UseFormRegister } from 'react-hook-form';
+import { twMerge } from 'tailwind-merge';
 
 export interface TextFieldProps extends AriaTextFieldProps {
-  register: UseFormRegister<FieldValues>;
-  errors: FieldErrors;
+  className?: string;
 }
+
+const defaultClassName = `
+            peer 
+            w-full 
+            p-4 
+            font-light 
+            dark:bg-black 
+            autofill:bg-black 
+            border-2 
+            border-neutral-300 
+            focus:border-white 
+            rounded-md 
+            outline-none 
+            transition 
+            disabled:opacity-70 
+            disabled:cursor-not-allowed 
+            invalid:border-rose-500 
+            required:border-rose-500`;
 
 const TextField = (props: TextFieldProps) => {
   const ref = useRef(null);
@@ -19,28 +33,36 @@ const TextField = (props: TextFieldProps) => {
   const { labelProps, inputProps, descriptionProps, errorMessageProps } =
     useTextField(props, ref);
 
-  const {
-    label,
-    id = `textField_${nanoid()}`,
-    isRequired,
-    register,
-    errors,
-    isDisabled,
-  } = props;
+  const { className } = props;
 
   return (
-    <div className='flex flex-col w-[100%]'>
-      <label {...labelProps}>{label}</label>
+    <div className='flex flex-col w-[100%] relative'>
       <input
         {...inputProps}
-        {...register(id, { required: isRequired })}
         ref={ref}
-        className={clsx(
-          `p-2 text-gray-900`,
-          errors[id] && 'focus:ring-rose-500',
-          isDisabled && 'opacity-50 cursor-default'
-        )}
+        className={twMerge(defaultClassName, className)}
       />
+      <label
+        {...labelProps}
+        className={`
+          absolute 
+          text-md
+          duration-150 
+          transform 
+          -translate-y-4 
+          top-4
+          left-4 
+          z-10 
+          origin-[0] 
+          peer-placeholder-shown:scale-100 
+          peer-placeholder-shown:translate-y-0 
+          peer-focus:scale-75
+          peer-focus:-translate-y-4
+          ${props.errorMessage ? 'text-rose-500' : 'text-zinc-400'}
+        `}
+      >
+        {props.label}
+      </label>
       {props.description && (
         <div {...descriptionProps}>{props.description}</div>
       )}
