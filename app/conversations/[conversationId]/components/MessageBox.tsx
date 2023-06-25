@@ -30,7 +30,9 @@ const MessageBox: React.FC<MessageBoxProps> = ({ data, isLast }) => {
 
   const message = clsx(
     'text-sm w-fit overflow-hidden p-2 rounded-md',
-    isOwn ? 'bg-sky-500 text-white' : 'bg-gray-100'
+    isOwn
+      ? 'dark:bg-sky-500 dark:text-white'
+      : 'dark:bg-neutral-200 dark:text-black'
   );
 
   return (
@@ -53,7 +55,7 @@ const MessageBox: React.FC<MessageBoxProps> = ({ data, isLast }) => {
             className='
             text-xs 
             font-light 
-            text-gray-500
+            text-neutral-400
             '
           >
             {`Seen by ${seenList}`}
