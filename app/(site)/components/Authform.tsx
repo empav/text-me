@@ -1,6 +1,7 @@
 'use client';
 
 import { SSRProvider } from 'react-aria';
+import { BsGoogle } from 'react-icons/bs';
 import { useEffect, useRef, useState } from 'react';
 import axios from 'axios';
 import toast from 'react-hot-toast';
@@ -38,16 +39,18 @@ const Authform = () => {
     });
   };
 
-  const handleSubmit = async (e: any) => {
-    e.preventDefault();
+  const handleForm = (action: 'credentials' | 'google') => async (e: any) => {
+    if (action === 'credentials') e.preventDefault();
 
     try {
       setIsLoading(true);
 
       if (variant === 'register') await axios.post('/api/register', formData);
 
-      const signInResponse = await signIn('credentials', {
-        ...formData,
+      const payload = action === 'credentials' ? { ...formData } : {};
+
+      const signInResponse = await signIn(action, {
+        ...payload,
         redirect: false,
       });
 
@@ -58,7 +61,7 @@ const Authform = () => {
       }
 
       if (signInResponse?.ok) {
-        router.push('/users');
+        // router.push('/users');
       }
     } catch (error) {
       throw new Error('Something went wrong!');
@@ -105,7 +108,7 @@ const Authform = () => {
   return (
     <SSRProvider>
       <form
-        onSubmit={handleSubmit}
+        onSubmit={handleForm('credentials')}
         className='w-[100%] md:w-[30%] max-w-sm flex flex-col items-center justify-center gap-2 mt-4'
       >
         <h2
@@ -157,6 +160,11 @@ const Authform = () => {
         <Button className='mt-4' type='submit' isDisabled={!isFormValid()}>
           {variant === 'login' ? 'Sign in' : 'Register'}
         </Button>
+        {variant === 'login' && (
+          <Button onPress={handleForm('google')} variant='secondary'>
+            <BsGoogle size={18} className='fill-sky-500' />
+          </Button>
+        )}
       </form>
       <p
         className='
