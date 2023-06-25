@@ -1,9 +1,11 @@
 'use client';
 
+import { forwardRef } from 'react';
 import type { AriaTextFieldProps } from 'react-aria';
 import { useTextField } from 'react-aria';
-import { useRef } from 'react';
+import { useObjectRef } from '@react-aria/utils';
 import { twMerge } from 'tailwind-merge';
+import clsx from 'clsx';
 
 export interface TextFieldProps extends AriaTextFieldProps {
   className?: string;
@@ -27,29 +29,26 @@ const defaultClassName = `
             invalid:border-rose-500 
             required:border-rose-500`;
 
-const TextField = (props: TextFieldProps) => {
-  const ref = useRef(null);
-
-  const { labelProps, inputProps, descriptionProps, errorMessageProps } =
-    useTextField(props, ref);
-
+const TextField = forwardRef<HTMLInputElement, TextFieldProps>((props, ref) => {
+  const textFieldRef = useObjectRef(ref);
+  const { labelProps, inputProps } = useTextField(props, textFieldRef);
   const { className } = props;
 
   return (
     <div className='flex flex-col w-[100%] relative'>
       <input
         {...inputProps}
-        ref={ref}
+        ref={textFieldRef}
         className={twMerge(defaultClassName, className)}
       />
       <label
         {...labelProps}
-        className={`
+        className={clsx(`
           absolute 
           text-md
           duration-150 
           transform 
-          -translate-y-4 
+          ${inputProps.value && '-translate-y-4 scale-75'}
           top-4
           left-4 
           z-10 
@@ -58,21 +57,16 @@ const TextField = (props: TextFieldProps) => {
           peer-placeholder-shown:translate-y-0 
           peer-focus:scale-75
           peer-focus:-translate-y-4
-          ${props.errorMessage ? 'text-rose-500' : 'text-zinc-400'}
-        `}
+          peer-invalid:text-rose-500
+          text-zinc-400
+        `)}
       >
         {props.label}
       </label>
-      {props.description && (
-        <div {...descriptionProps}>{props.description}</div>
-      )}
-      {props.errorMessage && (
-        <div {...errorMessageProps} className='ring-rose-500'>
-          {props.errorMessage}
-        </div>
-      )}
     </div>
   );
-};
+});
+
+TextField.displayName = 'TextField';
 
 export default TextField;

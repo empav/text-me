@@ -1,7 +1,7 @@
 'use client';
 
 import { SSRProvider } from 'react-aria';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import axios from 'axios';
 import toast from 'react-hot-toast';
 import { signIn, useSession } from 'next-auth/react';
@@ -15,6 +15,7 @@ type Variant = 'login' | 'register';
 const Authform = () => {
   const session = useSession();
   const router = useRouter();
+
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [variant, setVariant] = useState<Variant>('login');
 
@@ -23,6 +24,10 @@ const Authform = () => {
     name: '',
     password: '',
   });
+
+  const emailRef = useRef<HTMLInputElement>(null);
+  const passwordRef = useRef<HTMLInputElement>(null);
+  const nameRef = useRef<HTMLInputElement>(null);
 
   const handleInput = (name: string) => (value: string) => {
     setFormData((prev) => {
@@ -66,6 +71,31 @@ const Authform = () => {
     setVariant((prev) => (prev === 'login' ? 'register' : 'login'));
   };
 
+  const isFormValid = () => {
+    if (variant === 'login') {
+      return (
+        emailRef.current &&
+        passwordRef.current &&
+        emailRef.current.validity.valid &&
+        emailRef.current.value &&
+        passwordRef.current.validity.valid &&
+        passwordRef.current.value
+      );
+    } else {
+      return (
+        emailRef.current &&
+        passwordRef.current &&
+        nameRef.current &&
+        emailRef.current.validity.valid &&
+        emailRef.current.value &&
+        passwordRef.current.validity.valid &&
+        passwordRef.current.value &&
+        nameRef.current.validity.valid &&
+        nameRef.current.value
+      );
+    }
+  };
+
   useEffect(() => {
     if (session.status === 'authenticated') {
       router.push('/users');
@@ -92,6 +122,7 @@ const Authform = () => {
         </h2>
         <TextField
           autoFocus
+          ref={emailRef}
           isDisabled={isLoading}
           isRequired
           id='email'
@@ -102,6 +133,7 @@ const Authform = () => {
         />
         {variant === 'register' && (
           <TextField
+            ref={nameRef}
             isDisabled={isLoading}
             isRequired
             id='name'
@@ -112,6 +144,7 @@ const Authform = () => {
           />
         )}
         <TextField
+          ref={passwordRef}
           isDisabled={isLoading}
           isRequired
           id='password'
@@ -121,15 +154,7 @@ const Authform = () => {
           onChange={handleInput('password')}
           value={formData.password}
         />
-        <Button
-          className='mt-4'
-          type='submit'
-          isDisabled={
-            variant === 'login'
-              ? !(formData.email && formData.password)
-              : !(formData.email && formData.name && formData.password)
-          }
-        >
+        <Button className='mt-4' type='submit' isDisabled={!isFormValid()}>
           {variant === 'login' ? 'Sign in' : 'Register'}
         </Button>
       </form>

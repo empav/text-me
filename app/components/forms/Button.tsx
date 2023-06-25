@@ -2,8 +2,9 @@
 
 import type { AriaButtonProps } from 'react-aria';
 import { useButton } from 'react-aria';
-import { useRef } from 'react';
+import { forwardRef } from 'react';
 import { twMerge } from 'tailwind-merge';
+import { useObjectRef } from '@react-aria/utils';
 
 export interface ButtonProps extends AriaButtonProps {
   className?: string;
@@ -23,15 +24,15 @@ const defaultClassName = `flex
   hover:bg-sky-600 
   focus-visible:outline-sky-600`;
 
-function Button(props: ButtonProps) {
-  const ref = useRef(null);
-  const { buttonProps } = useButton(props, ref);
+const Button = forwardRef<HTMLButtonElement, ButtonProps>((props, ref) => {
+  const buttonRef = useObjectRef(ref);
+  const { buttonProps } = useButton(props, buttonRef);
   const { children, className } = props;
 
   return (
     <button
       {...buttonProps}
-      ref={ref}
+      ref={buttonRef}
       className={
         className ? twMerge(defaultClassName, className) : defaultClassName
       }
@@ -39,6 +40,8 @@ function Button(props: ButtonProps) {
       {children}
     </button>
   );
-}
+});
+
+Button.displayName = 'Button';
 
 export default Button;
