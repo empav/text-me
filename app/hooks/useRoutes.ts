@@ -13,7 +13,8 @@ const useRoutes = () => {
         label: 'Chat',
         href: '/conversations',
         icon: HiChat,
-        active: pathname === '/conversations',
+        //Considering /conversations/<conversationId> as well
+        active: pathname.startsWith('/conversations'),
       },
       {
         label: 'Users',

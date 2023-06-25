@@ -31,3 +31,7 @@ body {
     )
     rgb(var(--background-start-rgb));
 }
+
+.messages-body {
+  height: calc(100% - 56px);
+}
