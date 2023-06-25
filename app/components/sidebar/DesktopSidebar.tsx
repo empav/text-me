@@ -1,9 +1,10 @@
 'use client';
 
-import DesktopItem from './DesktopItem';
 import useRoutes from '@/app/hooks/useRoutes';
 import Avatar from '../Avatar';
 import { User } from '@prisma/client';
+import clsx from 'clsx';
+import Link from 'next/link';
 
 interface DesktopSidebarProps {
   currentUser: User;
@@ -34,15 +35,30 @@ const DesktopSidebar: React.FC<DesktopSidebarProps> = ({ currentUser }) => {
     >
       <nav className='mt-4 flex flex-col justify-between'>
         <ul role='list' className='flex flex-col items-center space-y-1'>
-          {routes.map((item) => (
-            <DesktopItem
-              key={item.label}
-              href={item.href}
-              label={item.label}
-              icon={item.icon}
-              active={item.active}
-              onClick={item.onClick}
-            />
+          {routes.map(({ onClick, active, icon: Icon, label, href }) => (
+            <li onClick={onClick} key={href}>
+              <Link
+                href={href}
+                className={clsx(
+                  `
+                  group 
+                  flex 
+                  gap-x-3 
+                  rounded-md 
+                  p-3 
+                  text-sm 
+                  leading-6 
+                  font-semibold 
+                  text-white  
+                  hover:scale-110
+                `,
+                  active && 'dark:text-sky-500'
+                )}
+              >
+                <Icon className='h-6 w-6 shrink-0' aria-hidden='true' />
+                <span className='sr-only'>{label}</span>
+              </Link>
+            </li>
           ))}
         </ul>
       </nav>

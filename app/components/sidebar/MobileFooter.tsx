@@ -1,7 +1,8 @@
 'use client';
 
 import useRoutes from '@/app/hooks/useRoutes';
-import MobileItem from './MobileItem';
+import Link from 'next/link';
+import clsx from 'clsx';
 
 const MobileFooter = () => {
   const routes = useRoutes();
@@ -22,14 +23,29 @@ const MobileFooter = () => {
         lg:hidden
       '
     >
-      {routes.map((route) => (
-        <MobileItem
-          key={route.href}
-          href={route.href}
-          active={route.active}
-          icon={route.icon}
-          onClick={route.onClick}
-        />
+      {routes.map(({ href, onClick, icon: Icon, active }) => (
+        <Link
+          key={href}
+          onClick={onClick}
+          href={href}
+          className={clsx(
+            `
+          group 
+          flex 
+          gap-x-3 
+          text-sm 
+          leading-6 
+          font-semibold 
+          w-full 
+          justify-center 
+          p-4  
+          hover:scale-110
+        `,
+            active ? 'text-sky-500' : 'text-gray-200'
+          )}
+        >
+          <Icon className='h-6 w-6' />
+        </Link>
       ))}
     </div>
   );
