@@ -1,33 +1,36 @@
 'use client';
 
-import type { AriaButtonProps } from 'react-aria';
+import { AriaButtonProps } from 'react-aria';
 import { useButton } from 'react-aria';
 import { forwardRef } from 'react';
 import { twMerge } from 'tailwind-merge';
 import { useObjectRef } from '@react-aria/utils';
+import clsx from 'clsx';
 
 export interface ButtonProps extends AriaButtonProps {
   className?: string;
+  variant?: 'primary' | 'secondary';
 }
-
-const defaultClassName = `flex 
-  justify-center 
-  rounded-md 
-  px-4 
-  py-3 
-  w-full 
-  text-sm 
-  font-semibold 
-  bg-sky-500 
-  disabled:opacity-70 
-  disabled:cursor-not-allowed 
-  hover:bg-sky-600 
-  focus-visible:outline-sky-600`;
 
 const Button = forwardRef<HTMLButtonElement, ButtonProps>((props, ref) => {
   const buttonRef = useObjectRef(ref);
   const { buttonProps } = useButton(props, buttonRef);
-  const { children, className } = props;
+  const { children, className, variant } = props;
+
+  const defaultClassName = clsx(`flex 
+    justify-center 
+    rounded-md 
+    px-4 
+    py-3 
+    w-full 
+    text-sm 
+    font-semibold 
+    ${(!variant || variant === 'primary') && 'dark:bg-sky-500 hover:bg-sky-600'}
+    ${variant === 'secondary' && 'dark:bg-white'}
+    disabled:opacity-70 
+    disabled:cursor-not-allowed  
+    hover:scale-105
+    focus-visible:outline-sky-600`);
 
   return (
     <button
