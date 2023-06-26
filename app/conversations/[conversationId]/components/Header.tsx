@@ -11,6 +11,8 @@ import ProfileDrawer from './ProfileDrawer';
 import axios from 'axios';
 import { toast } from 'react-hot-toast';
 import { useRouter } from 'next/navigation';
+import useActiveList from '@/app/hooks/useActiveList';
+import { useMemo } from 'react';
 
 interface HeaderProps {
   conversation: Conversation & {
@@ -21,8 +23,18 @@ interface HeaderProps {
 const Header: React.FC<HeaderProps> = ({ conversation }) => {
   const otherUser = useOtherUser(conversation);
   const router = useRouter();
-
   const profileDrawerState = useProfileDrawer();
+
+  const { members } = useActiveList();
+  const isActive = members.indexOf(otherUser?.email!) !== -1;
+
+  const statusText = useMemo(() => {
+    if (conversation.isGroup) {
+      return `${conversation.users.length} members`;
+    }
+
+    return isActive ? 'Active' : 'Offline';
+  }, [conversation, isActive]);
 
   const handleDelete = async () => {
     profileDrawerState.close();
@@ -72,6 +84,9 @@ const Header: React.FC<HeaderProps> = ({ conversation }) => {
 
         <div className='flex flex-col'>
           <div>{conversation.name || otherUser.name}</div>
+          <div className='text-sm font-light text-neutral-500'>
+            {statusText}
+          </div>
         </div>
       </div>
       <ProfileDrawer

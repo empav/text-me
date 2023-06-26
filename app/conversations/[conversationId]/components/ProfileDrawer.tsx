@@ -12,6 +12,7 @@ import AvatarGroup from '@/app/components/AvatarGroup';
 import ModalTrigger from '@/app/components/modals/ModalTrigger';
 import { OverlayTriggerState } from '@react-stately/overlays';
 import { HiEllipsisHorizontal } from 'react-icons/hi2';
+import useActiveList from '@/app/hooks/useActiveList';
 
 interface ProfileDrawerProps {
   state: OverlayTriggerState;
@@ -36,6 +37,17 @@ const ProfileDrawer: React.FC<ProfileDrawerProps> = ({
   const title = useMemo(() => {
     return conversation.name || otherUser.name;
   }, [conversation.name, otherUser.name]);
+
+  const { members } = useActiveList();
+  const isActive = members.indexOf(otherUser?.email!) !== -1;
+
+  const statusText = useMemo(() => {
+    if (conversation.isGroup) {
+      return `${conversation.users.length} members`;
+    }
+
+    return isActive ? 'Active' : 'Offline';
+  }, [conversation, isActive]);
 
   return (
     <>
@@ -70,7 +82,8 @@ const ProfileDrawer: React.FC<ProfileDrawerProps> = ({
                   <Avatar user={otherUser} />
                 )}
               </div>
-              <div className='mb-4'>{title}</div>
+              <div className='text-neutral-200'>{title}</div>
+              <div className='mb-4 text-sm text-neutral-500'>{statusText}</div>
               <div
                 className='w-10 h-10 mb-10 bg-white rounded-full flex items-center justify-center cursor-pointer'
                 onClick={onDelete}
