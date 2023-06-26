@@ -37,11 +37,14 @@ const modalDefaultClassName = `
   lg:-translate-x-2/4
   p-4
   flex
-  lg:w-[50vw]
-  lg:h-[50vw]
+  flex-col
+  lg:w-[30vw]
+  lg:h-[30vw]
   z-50
-  bg-neutral-200
+  dark:bg-black
   rounded-md
+  lg:border-2
+  lg:border-color-text-neutral-200
 `;
 
 const Modal = forwardRef<HTMLDivElement, ModalProps>(

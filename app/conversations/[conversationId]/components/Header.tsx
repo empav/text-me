@@ -2,11 +2,12 @@
 
 import Link from 'next/link';
 import { HiChevronLeft } from 'react-icons/hi';
-import { HiEllipsisHorizontal } from 'react-icons/hi2';
 import { Conversation, User } from '@prisma/client';
 
 import useOtherUser from '@/app/hooks/useOtherUser';
 import Avatar from '@/app/components/Avatar';
+import useProfileDrawer from '@/app/hooks/useProfileDrawer';
+import ProfileDrawer from './ProfileDrawer';
 
 interface HeaderProps {
   conversation: Conversation & {
@@ -16,6 +17,12 @@ interface HeaderProps {
 
 const Header: React.FC<HeaderProps> = ({ conversation }) => {
   const otherUser = useOtherUser(conversation);
+
+  const profileDrawerState = useProfileDrawer();
+
+  const handleDelete = () => {
+    profileDrawerState.close();
+  };
 
   return (
     <div
@@ -55,15 +62,10 @@ const Header: React.FC<HeaderProps> = ({ conversation }) => {
           <div>{conversation.name || otherUser.name}</div>
         </div>
       </div>
-      <HiEllipsisHorizontal
-        size={32}
-        onClick={() => {}}
-        className='
-          text-sky-500
-          cursor-pointer
-          hover:scale-110
-          transition
-        '
+      <ProfileDrawer
+        state={profileDrawerState}
+        conversation={conversation}
+        onDelete={handleDelete}
       />
     </div>
   );
