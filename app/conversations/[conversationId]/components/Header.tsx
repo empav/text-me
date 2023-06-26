@@ -8,6 +8,9 @@ import useOtherUser from '@/app/hooks/useOtherUser';
 import Avatar from '@/app/components/Avatar';
 import useProfileDrawer from '@/app/hooks/useProfileDrawer';
 import ProfileDrawer from './ProfileDrawer';
+import axios from 'axios';
+import { toast } from 'react-hot-toast';
+import { useRouter } from 'next/navigation';
 
 interface HeaderProps {
   conversation: Conversation & {
@@ -17,11 +20,20 @@ interface HeaderProps {
 
 const Header: React.FC<HeaderProps> = ({ conversation }) => {
   const otherUser = useOtherUser(conversation);
+  const router = useRouter();
 
   const profileDrawerState = useProfileDrawer();
 
-  const handleDelete = () => {
+  const handleDelete = async () => {
     profileDrawerState.close();
+
+    try {
+      await axios.delete(`/api/conversations/${conversation.id}`);
+      router.push('/conversations');
+      toast.success('conversation deleted');
+    } catch (error) {
+      toast.error('Something went wrong!');
+    }
   };
 
   return (
